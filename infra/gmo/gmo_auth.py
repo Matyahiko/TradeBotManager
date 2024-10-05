@@ -61,16 +61,9 @@ class GmoAuth:
             headers = self._create_headers(method, path)
             response = requests.get(endPoint + path, headers=headers)
 
-            if response.status_code == 200:
-                balance = response.json()
-                for item in balance['data']:
-                    if item['symbol'] == 'JPY':
-                        return item['amount']
-                return balance
-            else:
-                logger.error(f"残高の取得に失敗しました: {response.status_code} {response.text}")
-                response.raise_for_status()
-
+            balance = response.json()
+            return {'JPY': balance['data'][0]["amount"], 'BTC': balance['data'][1]["amount"]}
+        
         except Exception as e:
             logger.exception("残高取得中にエラーが発生しました。")
             raise e
@@ -175,6 +168,8 @@ class GmoAuth:
 
         except Exception as e:
             return None
+    
+    
            
 
 
@@ -197,9 +192,9 @@ if __name__ == "__main__":
         print("\n=== 約定情報 ===")
         print(active_order)
         
-        # balance = auth.fetch_balance()
-        # print("\n=== 残高情報 ===")
-        # print(balance)
+        balance = auth.fetch_balance()
+        print("\n=== 残高情報 ===")
+        print(balance)
 
     except Exception as e:
         logger.error(f"プログラムがエラーで終了しました: {e}")
