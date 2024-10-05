@@ -1,9 +1,11 @@
 #環境設定
-.environment_pr/
-*.yml
+.environment_pr/.env
 
-#データベース
-storage/
+
+#data
+*.csv
+*.tsv
+*.pkl
 
 #アプリケーションキャッシュ
 **/cache/
