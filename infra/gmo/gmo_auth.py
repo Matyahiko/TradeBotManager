@@ -7,7 +7,7 @@ import logging
 import json
 from typing import Any, Dict
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone
 
 # ロギングの設定
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -32,18 +32,22 @@ class GmoAuth:
             raise ValueError("APIキーまたはシークレットキーが見つかりません。")
 
     def _create_headers(self, method: str, path: str, body: str = "") -> Dict[str, str]:
-        timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
+        # UTCの現在時刻をミリ秒で取得
+        timestamp = str(int(time.time() * 1000))
+        # 署名対象のテキストを生成
         text = timestamp + method + path + body
+        # HMAC SHA256で署名を生成
         sign = hmac.new(
-            self.secret_key.encode('ascii'),
-            text.encode('ascii'),
+            self.secret_key.encode('utf-8'),
+            text.encode('utf-8'),
             hashlib.sha256
         ).hexdigest()
 
         return {
             "API-KEY": self.api_key,
             "API-TIMESTAMP": timestamp,
-            "API-SIGN": sign
+            "API-SIGN": sign,
+            "Content-Type": "application/json"  # 必要に応じて追加
         }
 
     def fetch_balance(self) -> Dict[str, Any]:
@@ -103,16 +107,23 @@ class GmoAuth:
         """
         try:
             endPoint = 'https://api.coin.z.com/public'
-            path = f'/v1/ticker?symbol={self.symbol_str}'
-            response = requests.get(endPoint + path).json()
-            data = response['data'][0]
+            path = f'/v1/ticker'
+            params = {
+                'symbol': self.symbol_str
+            }
+            response = requests.get(endPoint + path, params=params)
+            response.raise_for_status()
+            data = response.json()['data'][0]
             return {'bid': data['bid'], 'ask': data['ask']}
 
         except Exception as e:
             logger.exception("ティッカー情報取得中にエラーが発生しました。")
             raise e
-    
+
     def cancel_order(self) -> Dict[str, Any]:
+        """
+        注文をキャンセルする。
+        """
         try:
             method = 'POST'
             endPoint = 'https://api.coin.z.com/private'
@@ -135,31 +146,37 @@ class GmoAuth:
             logger.exception("注文キャンセル中にエラーが発生しました。")
             raise e
 
-    def check_executions(self) -> Dict[str, Any]:
-        #FIXME: この関数は確認していない
+    def check_order(self) -> Dict[str, Any]:
+        """
+        有効注文一覧を取得する。
+        """
         try:
             method = 'GET'
             endPoint = 'https://api.coin.z.com/private'
             path = '/v1/activeOrders'
-            reqBody = {
+            params = {
                 'symbol': self.symbol_str,
                 "page": 1
             }
-            body = json.dumps(reqBody)
-            headers = self._create_headers(method, path, body)
 
-            response = requests.post(endPoint + path, headers=headers, data=body)
+            # GETリクエストではボディがないため、bodyを空文字に設定
+            headers = self._create_headers(method, path)
+
+            response = requests.get(endPoint + path, headers=headers, params=params)
+            response.raise_for_status()
+            print(response.json())
+            order = response.json()['data']['list'][0]
 
             if response.status_code == 200:
-                return response.json()
+                return {'orderid': order['orderId'], 'symbol': order['symbol'], 'side': order['side'], 'price': order['price'], 'size': order['size']}
             else:
                 logger.error(f"ポジションの取得に失敗しました: {response.status_code} {response.text}")
-                response.raise_for_status()
+                res = None
 
         except Exception as e:
-            logger.exception("ポジションの取得に中にエラーが発生しました。")
-            raise e
-        
+            return None
+           
+
 
 if __name__ == "__main__":
     try:
@@ -176,7 +193,7 @@ if __name__ == "__main__":
         # print("\n=== 注文キャンセル ===")
         # print(cancel_order)
         
-        active_order = auth.check_executions()
+        active_order = auth.check_order()
         print("\n=== 約定情報 ===")
         print(active_order)
         
