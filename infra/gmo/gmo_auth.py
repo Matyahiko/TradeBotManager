@@ -136,7 +136,6 @@ class GmoAuth:
             raise e
 
     def check_executions(self) -> Dict[str, Any]:
-        #positionがあるかどうかを確認する　
         #FIXME: この関数は確認していない
         try:
             method = 'GET'

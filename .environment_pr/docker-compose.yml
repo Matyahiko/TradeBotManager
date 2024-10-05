@@ -1,0 +1,29 @@
+services:
+  python:
+    # network_mode: "host"
+    ports:
+      # Container:80 local:8100
+      - "8100:80"
+    build:
+      dockerfile: Dockerfile
+    container_name: crypto_bot_python
+    environment:
+      - TZ=Asia/Tokyo
+    env_file:
+      - .env
+    volumes:
+      # Container:/root/src local:../
+      - ../:/app/Prospecting
+    working_dir: /app/Prospecting
+    runtime: nvidia
+    tty: true
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 20g
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
