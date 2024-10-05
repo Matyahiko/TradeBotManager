@@ -46,7 +46,7 @@ class Strategy(GmoAuth):
         """
         try:
             # すべての関連変数をfloatに変換
-            balance_jpy = float(balance_jpy)
+            balance_jpy = float(balance_jpy['JPY'])
             current_price = float(current_price)
             self.equity_fraction = float(self.equity_fraction)
             self.min_order_size = float(self.min_order_size)
@@ -95,6 +95,7 @@ class Strategy(GmoAuth):
         current_price = df['Close'].iloc[idx]
         balance_jpy = self.fetch_balance()
         long_threshold = 0.01
+        short_threshold = -0.01
         atr_ratio = 0.9
 
         logger.info(f'最新データ - Prediction: {prediction}, ATR: {atr_value}, Close: {current_price}, Balance: {balance_jpy} JPY')
@@ -135,12 +136,10 @@ class Strategy(GmoAuth):
             if self.position:
                 #FIXME: この場合以前の注文が約定していなくてもキャンセルされ、ポジションが残り続ける
                 self.cancel_order()
-                
-                best_prices = self.fetch_ticker()
+                balance = self.fetch_balance() 
+                position_size = float(balance['BTC']) 
+                position_size = position_size - (position_size % self.size_step)  # 小数部分の切り捨て
                 logger.info(f'ポジションをクローズするシグナルを生成しました - 価格: {sell_price}, サイズ: {self.position["size"]}')
-                
-                position_size = self.position['size']
-                
                 self.position = None
 
                 return {
