@@ -10,7 +10,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def record_prediction(prediction, csv_file='Storage/tmp/predictions.csv', plot_file='Save/fig/catboost/prediction_distribution_dep.png'):
+def record_prediction(prediction, csv_file='storage/tmp/predictions.csv', plot_file='Save/fig/catboost/prediction_distribution_dep.png'):
     """
     予測値をCSVファイルに記録し、分布をプロットして画像として保存します。
 

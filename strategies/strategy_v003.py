@@ -1,4 +1,4 @@
-# strategy_v002.py
+# strategy_v003.py
 import logging
 import numpy as np
 import pandas as pd
@@ -18,9 +18,9 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.addHandler(logging.StreamHandler())
 
-class Strategy2(GmoAuth):
+class Strategy3(GmoAuth):
     """
-    取引戦略を定義するクラス。
+    取引戦略を定義するクラス（RSI抜き）。
     """
     def __init__(self, symbol: str, equity_fraction: float = 0.7):
         super().__init__()
@@ -80,9 +80,9 @@ class Strategy2(GmoAuth):
         else:
             return None
 
-    def long_short_atr_rsi_strategy(self, latest_data: pd.DataFrame, prediction: float):
+    def long_short_atr_strategy(self, latest_data: pd.DataFrame, prediction: float):
         """
-        ロングおよびショート戦略を実行する。
+        ロングおよびショート戦略を実行する（RSI抜き）。
         """
         self.long_atr_strategy(latest_data, prediction)
         self.short_atr_strategy(latest_data, prediction)
@@ -94,14 +94,13 @@ class Strategy2(GmoAuth):
         df = latest_data
         idx = len(df) - 1
         atr_value = df['ATR'].iloc[idx]
-        rsi_value = df['RSI'].iloc[idx]
         
         current_price = df['Close'].iloc[idx]
         balance_jpy = self.fetch_balance()
         long_threshold = 0.01
         atr_ratio = 0.9
 
-        logger.info(f'ロング戦略 - Prediction: {prediction}, ATR: {atr_value}, RSI: {rsi_value}, Close: {current_price}, Balance: {balance_jpy} JPY')
+        logger.info(f'ロング戦略 - Prediction: {prediction}, ATR: {atr_value}, Close: {current_price}, Balance: {balance_jpy} JPY')
 
         if self.size_step <= 0:
             logger.error('size_step が無効です。')
@@ -114,8 +113,8 @@ class Strategy2(GmoAuth):
 
         logger.debug(f'ロング指値距離: {limit_price_dist}, 指値価格: {buy_price}')
 
-        # RSIの条件を追加: RSI < 30
-        if prediction > long_threshold and rsi_value < 30:
+        # RSIの条件を削除し、予測値のみを使用
+        if prediction > long_threshold:
             self.trading_count += 1
             logger.info(f'ロング trading_count: {self.trading_count}')
             # 買いシグナル
@@ -166,14 +165,13 @@ class Strategy2(GmoAuth):
         df = latest_data
         idx = len(df) - 1
         atr_value = df['ATR'].iloc[idx]
-        rsi_value = df['RSI'].iloc[idx]
         
         current_price = df['Close'].iloc[idx]
         balance_jpy = self.fetch_balance()
         short_threshold = -0.01
         atr_ratio = 0.9
 
-        logger.info(f'ショート戦略 - Prediction: {prediction}, ATR: {atr_value}, RSI: {rsi_value}, Close: {current_price}, Balance: {balance_jpy} JPY')
+        logger.info(f'ショート戦略 - Prediction: {prediction}, ATR: {atr_value}, Close: {current_price}, Balance: {balance_jpy} JPY')
 
         if self.size_step <= 0:
             logger.error('size_step が無効です。')
@@ -186,8 +184,8 @@ class Strategy2(GmoAuth):
 
         logger.debug(f'ショート指値距離: {limit_price_dist}, 指値価格: {sell_price}')
 
-        # RSIの条件を追加: RSI > 70
-        if prediction < short_threshold and rsi_value > 70:
+        # RSIの条件を削除し、予測値のみを使用
+        if prediction < short_threshold:
             self.trading_count += 1
             logger.info(f'ショート trading_count: {self.trading_count}')
             # 売りシグナル
@@ -217,7 +215,7 @@ class Strategy2(GmoAuth):
                 balance = self.fetch_balance() 
                 position_size = float(balance['BTC']) 
                 position_size = position_size - (position_size % self.size_step)  # 小数部分の切り捨て
-                logger.info(f'ショートポジションをクローズするシグナルを生成しました - 価格: {current_price - limit_price_dist}, サイズ: {self.position["size"]}')
+                logger.info(f'Sホートポジションをクローズするシグナルを生成しました - 価格: {current_price - limit_price_dist}, サイズ: {self.position["size"]}')
                 self.position = None
 
                 return {
