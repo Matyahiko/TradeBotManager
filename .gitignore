@@ -6,6 +6,7 @@
 *.csv
 *.tsv
 *.pkl
+*.pkl
 
 #アプリケーションキャッシュ
 **/cache/
@@ -20,7 +21,7 @@ core
 Save/
 
 #モデル
-models/
+*.cbm
 
 #再利用するかもしれないファイル
 old/
