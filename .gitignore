@@ -6,7 +6,7 @@
 *.csv
 *.tsv
 *.pkl
-*.pkl
+*.png
 
 #アプリケーションキャッシュ
 **/cache/
