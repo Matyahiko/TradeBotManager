@@ -15,7 +15,7 @@ from infra.gmo.gmo_data_fetcher import GmoDataFetcher
 from data_procces_and_predict import predict_and_save
 from strategies.strategy_v001 import Strategy
 from strategies.strategy_v002 import Strategy2
-from strategies.strategy_v003 import Strategy3
+#from strategies.strategy_v003 import Strategy3
 from infra.gmo.gmo_auth import GmoAuth
 from infra.gmo.gmo_order import GmoCoin
 
@@ -54,9 +54,9 @@ async def trade():
         record_prediction(prediction)
 
         # Strategy1 のインスタンスを使用して execute メソッドを呼び出す
-        #signal = strategy1.long_atr_strategy(df, prediction)
+        signal = strategy1.long_atr_strategy(df, prediction)
         
-        signal = strategy2.long_short_atr_rsi_strategy(df, prediction)
+        #signal = strategy2.long_short_atr_strategy(df, prediction)
         logger.info(f"取引シグナル: {signal}")
 
         if signal is not None:
