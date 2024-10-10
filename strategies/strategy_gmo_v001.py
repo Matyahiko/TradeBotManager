@@ -1,15 +1,19 @@
 #strategy_v001.py
 import logging
 from typing import Any, Dict, Optional
+import asyncio
 
 import numpy as np
 import pandas as pd
 
 from infra.gmo.gmo_auth import GmoAuth
 from infra.gmo.gmo_order import GmoCoin
+from infra.gmo.gmo_websocket_client import websocket_order_events
 from modules.logging_config import logging_config
 from modules.calculate_position import calculate_position_size
 from modules.calculate_limit_price import calculate_limit_price_dist
+from modules.calculate_limit_price import LimitPrice
+
 
 
 class Strategy(GmoAuth, GmoCoin):
@@ -55,6 +59,7 @@ class Strategy(GmoAuth, GmoCoin):
         self.cancel_order()
         self.limit_order(symbol=self.symbol, side=self.reverse_side, amount=size, price=limit_price.buy_price)
         
+        asyncio.run(websocket_order_events())
        
     
         if prediction > long_threshold:

@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-async def websocket_main():
+async def websocket_order_events():
     load_dotenv(".environment/.env")  # 環境変数のロード
 
     apis = {
@@ -51,7 +51,7 @@ async def websocket_main():
             logger.info("=== WebSocket接続を開始しました。 ===")
             logger.info("ポジションサマリーイベントを待機中...")
 
-            async with store.position_summary.watch() as stream:
+            async with store.order_events.watch() as stream:
                 async for change in stream:
                     print(f"[{datetime.now(timezone.utc).isoformat()}] {change.data}")
 
