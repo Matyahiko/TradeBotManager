@@ -13,10 +13,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from calc_technical_indicators import calc_technical_indicators
 from infra.gmo.gmo_data_fetcher import GmoDataFetcher
 from data_procces_and_predict import predict_and_save
-from strategies.strategy_gmo_v001 import Strategy 
-
-from infra.gmo.gmo_auth import GmoAuth
-from infra.gmo.gmo_order import GmoCoin
+from strategies.strategy_bybit_v001 import Strategy
+from strategies.strategy_v002 import Strategy
+from infra.bybit.auth import BybitAuth
+from infra.bybit.order import BybitOrder
+from infra.bybit.trader import BybitTrader
+from infra.bybit.fetch_kline import BybitKlineDataFetcher
 
 
 # record_predictions.py から関数をインポート
@@ -27,7 +29,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 # GMO認証とプロキシの設定
-auth = GmoAuth()
+auth = BybitAuth()
 proxy = ''
 proxies = {
     "http": proxy,
@@ -35,9 +37,13 @@ proxies = {
 }
 
 symbol = 'BTC'
-gmo_coin = GmoCoin(proxies=proxies)  # TODO: 通常環境用にoptionalにする
-fetcher = GmoDataFetcher(proxy=proxy)
-strategy = Strategy(symbol=symbol, equity_fraction=0.7)
+equity_retio = 0.7
+order_size = 0.000048
+bybit_trader = BybitTrader() 
+fetcher = BybitKlineDataFetcher()
+order = BybitOrder()
+strategy1 = Strategy(symbol=symbol, order_size=order_size)
+strategy2 = Strategy2(symbol=symbol, equity_fraction=0.7)
 
 
 async def trade():
@@ -51,9 +57,21 @@ async def trade():
 
         record_prediction(prediction)
 
-        # Strategy1 のインスタンスを使用して execute メソッドを呼び出す
-        strategy.long_atr_strategy(df, prediction)
+    
+        signal = strategy1.long_atr_strategy(df, prediction)
+        
+        #signal = strategy2.long_short_atr_strategy(df, prediction)
+        logger.info(f"取引シグナル: {signal}")
 
+        if signal is not None:
+            # 注文の実行
+            status = order.create_limit_order(
+                symbol=symbol,
+                side=signal['side'],
+                amount=signal['amount'],
+                price=signal['price']
+            )
+            logger.info(f"取引結果: {status}")
     except Exception as e:
         logger.error(f"トレード中にエラーが発生しました: {e}")
 

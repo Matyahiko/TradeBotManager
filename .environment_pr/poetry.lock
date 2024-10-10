@@ -1556,6 +1556,23 @@ packaging = "*"
 tenacity = ">=6.2.0"
 
 [[package]]
+name = "pybotters"
+version = "1.5.0"
+description = "An advanced API client for python crypto bot traders"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pybotters-1.5.0-py3-none-any.whl", hash = "sha256:1e1a1df7a1d35a21fa3f35059be6a8becb1827a1f40a69c8be6b055a270de315"},
+    {file = "pybotters-1.5.0.tar.gz", hash = "sha256:c7a3e3e5a4ab3798153fa4674d0e3beb582d2782bf1f39a0b910935f468dd0ab"},
+]
+
+[package.dependencies]
+aiohttp = ">=3.7.0"
+
+[package.extras]
+docs = ["furo", "sphinx", "sphinx-autobuild", "sphinx-copybutton", "sphinx-new-tab-link"]
+
+[[package]]
 name = "pycares"
 version = "4.4.0"
 description = "Python interface for c-ares"
@@ -2208,4 +2225,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "f942beb31b0674bdba450e2c115115aa284a30bc8e2519c5d3d6ce34338436dd"
+content-hash = "698186932fe3ea87a58d03902f650ecfed677d46b858bc074fa33069d772f09f"

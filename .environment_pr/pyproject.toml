@@ -19,6 +19,7 @@ ta-lib = "^0.4.32"
 rich = "^13.9.2"
 ccxt = "^4.4.13"
 matplot = "^0.1.9"
+pybotters = "^1.5.0"
 
 
 [build-system]

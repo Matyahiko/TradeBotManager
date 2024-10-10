@@ -3,7 +3,7 @@ import os
 import logging
 import pandas as pd
 from catboost import CatBoostRegressor
-from modules.calc_technical_indicators import calc_technical_indicators
+from calc_technical_indicators import calc_technical_indicators
 from infra.gmo.gmo_data_fetcher import GmoDataFetcher
 
 # ロギングの設定

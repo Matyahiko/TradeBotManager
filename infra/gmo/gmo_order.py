@@ -59,7 +59,6 @@ class GmoCoin(GmoAuth):
                 timeout=10  # 必要に応じてタイムアウトを設定
             )
             response.raise_for_status()  # HTTPエラーが発生した場合例外を投げる
-            return response.json()
+            logger.info(f"Limit order response: {response.json()}")
         except requests.RequestException as e:
             logger.error(f"Limit order failed: {e}")
-            return {"error": str(e)}

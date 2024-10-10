@@ -3,9 +3,10 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone
 from infra.bybit.auth import BybitAuth
 
-class fetch_kline(BybitAuth):
+class BybitKlineDataFetcher(BybitAuth):
     def __init__(self):
         super().__init__()
+        
         
     
     def fetch_ohlcv(self):
@@ -23,7 +24,7 @@ class fetch_kline(BybitAuth):
             df.set_index('timestamp', inplace=True)
             return df
 
-# 使用例
+# 動作確認
 if __name__ == "__main__":
-    df = fetch_kline().fetch_ohlcv()
+    df = BybitKlineDataFetcher().fetch_ohlcv()
     print(df)
